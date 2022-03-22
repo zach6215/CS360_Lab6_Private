@@ -178,4 +178,3 @@ char *pwd(MINODE *wd)
 }
 
 #endif
-
