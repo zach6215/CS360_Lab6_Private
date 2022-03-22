@@ -109,11 +109,37 @@ int ls_dir(MINODE *mip)
    x = 0;
    while(ibuf[x])
    {
-      get_block(fd,  ibuf[x], dibuf);
+          get_block(dev, mip->INODE.i_block[x], buf);
+          dp = (DIR *)buf;
+          cp = buf;
+          
+          while (cp < buf + BLKSIZE){
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+          
+            printf("%s  ", temp);
+
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+          }
       int y = 0;
       while(dibuf[y])
       {
-         printf("%d " , dibuf[y]);
+          printf("%d " , dibuf[y]);
+
+          get_block(dev, mip->INODE.i_block[x], buf);
+          dp = (DIR *)buf;
+          cp = buf;
+          
+          while (cp < buf + BLKSIZE){
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+          
+            printf("%s  ", temp);
+
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+          }
          y++;
       }
       x++;
