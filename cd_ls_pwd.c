@@ -67,6 +67,17 @@ char *pwd(MINODE *wd)
     printf("/\n");
     return;
   }
+  else{
+    rpwd(wd);
+  }
+}
+
+void rpwd(MINODE *wd)
+{
+  if (wd == root)
+  {
+    return;
+  } 
 }
 
 
