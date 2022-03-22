@@ -130,7 +130,7 @@ int ls(char * pathname)
   MINODE *mip = running->cwd;
 
     //breaks path down and places tokens into name array 
-  if(strcmp(pathname,"")){
+  if(strcmp(pathname,"") == 0){
     //if pathname is not empty then tokenize
     tokenize(pathname);
   }
@@ -142,6 +142,7 @@ int ls(char * pathname)
 
   //sets ino and minode pointer to root if starting search from root directroy 
   if(pathname[0] =='/'){
+    //printf("pathname0 == /\n"); 
     ino = root->ino;
     mip = root;
   }
@@ -149,11 +150,13 @@ int ls(char * pathname)
     ino = running->cwd->ino;
   }
 
+  printf("n = %i\n", n);
+  //return 0;
   for (int i=0; i<n; i++){
         printf("===========================================\n");
         printf("search name[%d]=%s in ino=%d\n", i, name[i], ino);
         ino = search(mip, name[i]);
-
+        printf("ino = %i", ino);
         if (ino==0){
            printf("name %s does not exist\n", name[i]);
            return -1;
