@@ -65,11 +65,11 @@ int ls_dir(MINODE *mip)
    {
           printf("%d " , ibuf[x]);
 
-          get_block(dev, mip->INODE.i_block[x], buf);
-          dp = (DIR *)buf;
-          cp = buf;
+          get_block(dev, mip->INODE.i_block[x], ibuf);
+          dp = (DIR *)ibuf;
+          cp = ibuf;
           
-          while (cp < buf + BLKSIZE){
+          while (cp < ibuf + BLKSIZE){
             strncpy(temp, dp->name, dp->name_len);
             temp[dp->name_len] = 0;
           
@@ -89,15 +89,41 @@ int ls_dir(MINODE *mip)
 
    bzero(ibuf,1024);
 
-   get_block(fd,  ip->i_block[13], ibuf);
+   get_block(dev,  ip->i_block[13], ibuf);
    x = 0;
    while(ibuf[x])
    {
-      get_block(fd,  ibuf[x], dibuf);
+          get_block(dev, mip->INODE.i_block[x], ibuf);
+          dp = (DIR *)ibuf;
+          cp = ibuf;
+          
+          while (cp < ibuf + BLKSIZE){
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+          
+            printf("%s  ", temp);
+
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+          }
       int y = 0;
       while(dibuf[y])
       {
          printf("%d " , dibuf[y]);
+
+          get_block(dev, mip->INODE.i_block[y], dibuf);
+          dp = (DIR *)dibuf;
+          cp = dibuf;
+          
+          while (cp < dibuf + BLKSIZE){
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+          
+            printf("%s  ", temp);
+
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+          }
          y++;
       }
       x++;
@@ -107,20 +133,22 @@ int ls_dir(MINODE *mip)
 int ls(char * pathname)
 {
 
-  printf("pathname: %s \n", pathname);
+  printf("pathname 1: %s \n", pathname);
 
   int ino;
 
   MINODE *mip = running->cwd;
-
     //breaks path down and places tokens into name array 
-  if(strcmp(pathname,"")){
+  if(pathname[0] ==""){
+    printf("pathname2: %s \n", pathname);
     //if pathname is not empty then tokenize
     tokenize(pathname);
+    printf("pathname3: %s \n", pathname);
   }
   else{
     //length of name array set to 0
     ls_dir(running->cwd);
+
     return;
   }
 
