@@ -1,8 +1,26 @@
 /************* cd_ls_pwd.c file **************/
+#include "util.c"
+
 int cd()
 {
   printf("cd: under construction READ textbook!!!!\n");
 
+  int ino = getino(pathname);
+  //ino doesn't exist
+  if (ino == 0)
+  {
+    return -1;
+  }
+  MINODE *mip = iget(dev, ino);
+  if (mip->INODE.i_mode == 16877)
+  {
+    iput(running->cwd);
+    running->cwd = mip;
+  }
+  else
+  {
+    return -1;
+  }
   // READ Chapter 11.7.3 HOW TO chdir
 }
 
