@@ -1,3 +1,6 @@
+#ifndef repeat3
+#define repeat3
+
 /*************** type.h file for LEVEL-1 ****************/
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -8,10 +11,10 @@ typedef struct ext2_group_desc  GD;
 typedef struct ext2_inode       INODE;
 typedef struct ext2_dir_entry_2 DIR;
 
-SUPER *sp;
-GD    *gp;
-INODE *ip;
-DIR   *dp;   
+SUPER *gsp;
+GD    *ggp;
+INODE *gip;
+DIR   *gdp;   
 
 #define FREE        0
 #define READY       1
@@ -37,3 +40,5 @@ typedef struct proc{
   int          gid;
   MINODE      *cwd;      // CWD directory pointer  
 }PROC;
+
+#endif

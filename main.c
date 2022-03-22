@@ -12,6 +12,8 @@
 
 #include "type.h"
 
+#define BLK 1024
+
 extern MINODE *iget();
 
 MINODE minode[NMINODE];
@@ -28,78 +30,78 @@ char line[128], cmd[32], pathname[128];
 
 #include "cd_ls_pwd.c"
 
-int get_block(int dev, int blk, char *buf)
-{
-   lseek(dev, (long)blk*BLKSIZE, 0);
-   read(dev, buf, BLKSIZE);
-}
+// int get_block(int dev, int blk, char *buf)
+// {
+//    lseek(dev, (long)blk*BLKSIZE, 0);
+//    read(dev, buf, BLKSIZE);
+// }
 
-void iput(MINODE *mip)
-{
- int i, block, offset;
- char buf[BLKSIZE];
- INODE *ip;
+// void iput(MINODE *mip)
+// {
+//  int i, block, offset;
+//  char buf[BLKSIZE];
+//  INODE *ip;
 
- if (mip==0) 
-     return;
+//  if (mip==0) 
+//      return;
 
- mip->refCount--;
+//  mip->refCount--;
  
- if (mip->refCount > 0) return;
- if (!mip->dirty)       return;
+//  if (mip->refCount > 0) return;
+//  if (!mip->dirty)       return;
  
- /* write INODE back to disk */
- /**************** NOTE ******************************
-  For mountroot, we never MODIFY any loaded INODE
-                 so no need to write it back
-  FOR LATER WROK: MUST write INODE back to disk if refCount==0 && DIRTY
+//  /* write INODE back to disk */
+//  /**************** NOTE ******************************
+//   For mountroot, we never MODIFY any loaded INODE
+//                  so no need to write it back
+//   FOR LATER WROK: MUST write INODE back to disk if refCount==0 && DIRTY
 
-  Write YOUR code here to write INODE back to disk
- *****************************************************/
-} 
+//   Write YOUR code here to write INODE back to disk
+//  *****************************************************/
+// } 
 
-// return minode pointer to loaded INODE
-MINODE *iget(int dev, int ino)
-{
-  int i;
-  MINODE *mip;
-  char buf[BLKSIZE];
-  int blk, offset;
-  INODE *ip;
+// // return minode pointer to loaded INODE
+// MINODE *iget(int dev, int ino)
+// {
+//   int i;
+//   MINODE *mip;
+//   char buf[BLKSIZE];
+//   int blk, offset;
+//   INODE *ip;
 
-  for (i=0; i<NMINODE; i++){
-    mip = &minode[i];
-    if (mip->refCount && mip->dev == dev && mip->ino == ino){
-       mip->refCount++;
-       //printf("found [%d %d] as minode[%d] in core\n", dev, ino, i);
-       return mip;
-    }
-  }
+//   for (i=0; i<NMINODE; i++){
+//     mip = &minode[i];
+//     if (mip->refCount && mip->dev == dev && mip->ino == ino){
+//        mip->refCount++;
+//        //printf("found [%d %d] as minode[%d] in core\n", dev, ino, i);
+//        return mip;
+//     }
+//   }
     
-  for (i=0; i<NMINODE; i++){
-    mip = &minode[i];
-    if (mip->refCount == 0){
-       //printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
-       mip->refCount = 1;
-       mip->dev = dev;
-       mip->ino = ino;
+//   for (i=0; i<NMINODE; i++){
+//     mip = &minode[i];
+//     if (mip->refCount == 0){
+//        //printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
+//        mip->refCount = 1;
+//        mip->dev = dev;
+//        mip->ino = ino;
 
-       // get INODE of ino to buf    
-       blk    = (ino-1)/8 + iblk;
-       offset = (ino-1) % 8;
+//        // get INODE of ino to buf    
+//        blk    = (ino-1)/8 + iblk;
+//        offset = (ino-1) % 8;
 
-       //printf("iget: ino=%d blk=%d offset=%d\n", ino, blk, offset);
+//        //printf("iget: ino=%d blk=%d offset=%d\n", ino, blk, offset);
 
-       get_block(dev, blk, buf);
-       ip = (INODE *)buf + offset;
-       // copy INODE to mp->INODE
-       mip->INODE = *ip;
-       return mip;
-    }
-  }   
-  printf("PANIC: no more free minodes\n");
-  return 0;
-}
+//        get_block(dev, blk, buf);
+//        ip = (INODE *)buf + offset;
+//        // copy INODE to mp->INODE
+//        mip->INODE = *ip;
+//        return mip;
+//     }
+//   }   
+//   printf("PANIC: no more free minodes\n");
+//   return 0;
+// }
 
 int init()
 {
@@ -147,23 +149,23 @@ int main(int argc, char *argv[ ])
 
   /********** read super block  ****************/
   get_block(dev, 1, buf);
-  sp = (SUPER *)buf;
+  gsp = (SUPER *)buf;
 
   /* verify it's an ext2 file system ***********/
-  if (sp->s_magic != 0xEF53){
-      printf("magic = %x is not an ext2 filesystem\n", sp->s_magic);
+  if (gsp->s_magic != 0xEF53){
+      printf("magic = %x is not an ext2 filesystem\n", gsp->s_magic);
       exit(1);
   }     
   printf("EXT2 FS OK\n");
-  ninodes = sp->s_inodes_count;
-  nblocks = sp->s_blocks_count;
+  ninodes = gsp->s_inodes_count;
+  nblocks = gsp->s_blocks_count;
 
   get_block(dev, 2, buf); 
-  gp = (GD *)buf;
+  ggp = (GD *)buf;
 
-  bmap = gp->bg_block_bitmap;
-  imap = gp->bg_inode_bitmap;
-  iblk = gp->bg_inode_table;
+  bmap = ggp->bg_block_bitmap;
+  imap = ggp->bg_inode_bitmap;
+  iblk = ggp->bg_inode_table;
   printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, iblk);
 
   init();  
@@ -190,9 +192,9 @@ int main(int argc, char *argv[ ])
     printf("cmd=%s pathname=%s\n", cmd, pathname);
   
     if (strcmp(cmd, "ls")==0)
-       ls();
+       ls(pathname);
     else if (strcmp(cmd, "cd")==0)
-       cd();
+       cd(pathname);
     else if (strcmp(cmd, "pwd")==0)
        pwd(running->cwd);
     else if (strcmp(cmd, "quit")==0)

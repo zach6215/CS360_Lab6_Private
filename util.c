@@ -1,3 +1,6 @@
+#ifndef repeat2
+#define repeat2
+
 /*********** util.c file ****************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -211,3 +214,5 @@ int findino(MINODE *mip, u32 *myino) // myino = i# of . return i# of ..
   // WRITE your code here: myino = ino of .  return ino of ..
   // all in i_block[0] of this DIR INODE.
 }
+
+#endif
