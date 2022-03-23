@@ -39,21 +39,23 @@ int ls_dir(MINODE *mip)
 
   INODE *ip;
   
-  int ibuf[BLK/4];
+  int ibuf[BLKSIZE/4];
   
-  int dibuf[BLK/4];
+  int dibuf[BLKSIZE/4];
   
   char buf[BLKSIZE], temp[256];
   DIR *dp;
   char *cp;
 
-  *ip = mip->INODE;
-  
+  printf("mip inode links count: %d", mip->INODE.i_links_count);
+  printf("\n");
+
+  mip->INODE;
 
    printf("================ Direct Blocks ===================\n");
    for (int i=0; i<12; i++){
-      if (ip->i_block[i]){ 
-          printf("%d ", ip->i_block[i]);
+      if (mip->INODE.i_block[i]){ 
+          printf("%d ", mip->INODE.i_block[i]);
           
           get_block(dev, mip->INODE.i_block[i], buf);
           dp = (DIR *)buf;
@@ -72,84 +74,84 @@ int ls_dir(MINODE *mip)
    }
    printf("\n");
 
-   if (ip->i_block[12]){
-      printf("===============  Indirect blocks   ===============\n"); 
-   }
-   get_block(dev,  ip->i_block[12], ibuf);
-   int x = 0;
-   while(x < 256)
-   {
-          printf("%d " , ibuf[x]);
+  //  if (ip->i_block[12]){
+  //     printf("===============  Indirect blocks   ===============\n"); 
+  //  }
+  //  get_block(dev,  ip->i_block[12], ibuf);
+  //  int x = 0;
+  //  while(x < 256)
+  //  {
+  //         printf("%d " , ibuf[x]);
 
-          get_block(dev, mip->INODE.i_block[x], buf);
-          dp = (DIR *)buf;
-          cp = buf;
+  //         get_block(dev, mip->INODE.i_block[x], buf);
+  //         dp = (DIR *)buf;
+  //         cp = buf;
           
-          while (cp < buf + BLKSIZE){
-            strncpy(temp, dp->name, dp->name_len);
-            temp[dp->name_len] = 0;
+  //         while (cp < buf + BLKSIZE){
+  //           strncpy(temp, dp->name, dp->name_len);
+  //           temp[dp->name_len] = 0;
           
-            printf("%s  ", temp);
+  //           printf("%s  ", temp);
 
-            cp += dp->rec_len;
-            dp = (DIR *)cp;
-          }
-      x++;
-   }
+  //           cp += dp->rec_len;
+  //           dp = (DIR *)cp;
+  //         }
+  //     x++;
+  //  }
 
-   printf("\n");
+  //  printf("\n");
 
-   if (ip->i_block[13]){
-     printf("===========  Double Indirect blocks   ============\n"); 
-   }
+  //  if (ip->i_block[13]){
+  //    printf("===========  Double Indirect blocks   ============\n"); 
+  //  }
 
-   bzero(ibuf,1024);
+  //  bzero(ibuf,1024);
 
-   get_block(fd,  ip->i_block[13], ibuf);
-   x = 0;
-   while(ibuf[x])
-   {
-          get_block(dev, mip->INODE.i_block[x], buf);
-          dp = (DIR *)buf;
-          cp = buf;
+  //  get_block(fd,  ip->i_block[13], ibuf);
+  //  x = 0;
+  //  while(ibuf[x])
+  //  {
+  //         get_block(dev, mip->INODE.i_block[x], buf);
+  //         dp = (DIR *)buf;
+  //         cp = buf;
           
-          while (cp < buf + BLKSIZE){
-            strncpy(temp, dp->name, dp->name_len);
-            temp[dp->name_len] = 0;
+  //         while (cp < buf + BLKSIZE){
+  //           strncpy(temp, dp->name, dp->name_len);
+  //           temp[dp->name_len] = 0;
           
-            printf("%s  ", temp);
+  //           printf("%s  ", temp);
 
-            cp += dp->rec_len;
-            dp = (DIR *)cp;
-          }
-      int y = 0;
-      while(dibuf[y])
-      {
-          printf("%d " , dibuf[y]);
+  //           cp += dp->rec_len;
+  //           dp = (DIR *)cp;
+  //         }
+  //     int y = 0;
+  //     while(dibuf[y])
+  //     {
+  //         printf("%d " , dibuf[y]);
 
-          get_block(dev, mip->INODE.i_block[x], buf);
-          dp = (DIR *)buf;
-          cp = buf;
+  //         get_block(dev, mip->INODE.i_block[x], buf);
+  //         dp = (DIR *)buf;
+  //         cp = buf;
           
-          while (cp < buf + BLKSIZE){
-            strncpy(temp, dp->name, dp->name_len);
-            temp[dp->name_len] = 0;
+  //         while (cp < buf + BLKSIZE){
+  //           strncpy(temp, dp->name, dp->name_len);
+  //           temp[dp->name_len] = 0;
           
-            printf("%s  ", temp);
+  //           printf("%s  ", temp);
 
-            cp += dp->rec_len;
-            dp = (DIR *)cp;
-          }
-         y++;
-      }
-      x++;
-   }
+  //           cp += dp->rec_len;
+  //           dp = (DIR *)cp;
+  //         }
+  //        y++;
+  //     }
+  //     x++;
+  //  }
 }
 
 int ls(char * pathname)
 {
 
-  printf("pathname: %s \n", pathname);
+  //printf("pathname: %s \n", pathname);
 
   int ino;
 
@@ -162,7 +164,9 @@ int ls(char * pathname)
   }
   else{
     //length of name array set to 0
-    ls_dir(running->cwd);
+    // printf("mip inode links count: %d", mip->INODE.i_links_count);
+    // printf("\n");
+    ls_dir(mip);
     return;
   }
 
